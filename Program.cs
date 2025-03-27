@@ -29,6 +29,8 @@ var dbUrl = builder.Configuration.GetConnectionString("DefaultConnection")
 
 Console.WriteLine($"DATABASE_URL from environment: {dbUrl}");
 
+builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(dbUrl));
 
@@ -36,8 +38,6 @@ var app = builder.Build();
 app.UseCors("AllowSpecificOrigins");
 app.UseHttpsRedirection();
 app.UseWebSockets();
-
-builder.Services.AddEndpointsApiExplorer();
 
 // Список подключённых клиентов
 var clients = new List<WebSocket>();
