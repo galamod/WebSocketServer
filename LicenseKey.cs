@@ -16,5 +16,11 @@ public class LicenseKey
     public string AppName { get; set; }  // Название приложения
 
     [Required]
-    public DateTime ExpirationDate { get; set; }  // Дата истечения
+    public DateTime ExpirationDate
+    {
+        get => _expirationDate;
+        set => _expirationDate = DateTime.SpecifyKind(value, DateTimeKind.Utc);
+    }
+
+    private DateTime _expirationDate;
 }
