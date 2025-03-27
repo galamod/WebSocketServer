@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net.WebSockets;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
@@ -56,6 +57,12 @@ app.Use(async (context, next) =>
     }
 });
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.Run();
 
 async Task HandleWebSocketAsync(WebSocket webSocket, IServiceProvider services)
@@ -98,8 +105,14 @@ async Task HandleWebSocketAsync(WebSocket webSocket, IServiceProvider services)
 
             if (message.StartsWith("CHECK_KEY:"))
             {
-                var key = message.Replace("CHECK_KEY:", "").Trim();
-                var license = await dbContext.Licenses.FirstOrDefaultAsync(l => l.Key == key);
+                var data = message.Replace("CHECK_KEY:", "").Trim().Split(",");
+                if (data.Length != 2) return;
+
+                string appName = data[0].Trim();
+                string key = data[1].Trim();
+
+                var license = await dbContext.Licenses
+                    .FirstOrDefaultAsync(l => l.Key == key && l.AppName == appName);
 
                 string response;
                 if (license == null)
@@ -117,6 +130,7 @@ async Task HandleWebSocketAsync(WebSocket webSocket, IServiceProvider services)
 
                 await webSocket.SendAsync(Encoding.UTF8.GetBytes(response), WebSocketMessageType.Text, true, CancellationToken.None);
             }
+
         }
     }
 }
@@ -124,9 +138,14 @@ async Task HandleWebSocketAsync(WebSocket webSocket, IServiceProvider services)
 // БД-модель
 public class License
 {
-    public int Id { get; set; }
+    [Key]  // Первичный ключ
     public string Key { get; set; }
-    public DateTime ExpiresAt { get; set; }
+
+    [Required]
+    public string AppName { get; set; }  // Название приложения
+
+    [Required]
+    public DateTime ExpiresAt { get; set; }  // Дата истечения
 }
 
 // Контекст базы данных

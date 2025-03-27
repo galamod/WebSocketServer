@@ -9,5 +9,7 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: DATABASE_URL
+        value: "Host=dpg-cvcuan9u0jms739iavig-a.oregon-postgres.render.com;Port=5432;Database=my_postgresql_stno;Username=my_postgresql_stno_user;Password=0brEbLrRBAMI16Lggdl4aeZ1pf1YbJmN;SSL Mode=Require;Trust Server Certificate=true;"
     healthCheckPath: /
     startCommand: "dotnet WebSocketServer.dll"
