@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: WebSocketServer
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    branch: main
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+    healthCheckPath: /
+    startCommand: "dotnet WebSocketServer.dll"
